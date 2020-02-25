@@ -1,0 +1,17 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 0,
+      "title": "react"
+    },
+    {
+      "id": 1,
+      "title": "vue"
+    },
+    {
+      "id": 2,
+      "title": "angular"
+    }
+  ]
+}

@@ -7,22 +7,20 @@ class Home extends React.PureComponent {
     super(props);
     this.state = {
       inputValue: "",
-      todoLists: [
-        {
-          id: 0,
-          title: "react"
-        },
-        {
-          id: 1,
-          title: "vue"
-        },
-        {
-          id: 2,
-          title: "angular"
-        }
-      ]
+      todoLists: []
     };
     this.counter = 100;
+  }
+
+  componentDidMount() {
+    fetch("/api/lists.json")
+      .then(response => response.json())
+      .then(res =>
+        this.setState(() => ({
+          todoLists: res.data
+        }))
+      )
+      .catch(e => console.log("获取数据失败"));
   }
 
   handleChange = e => {
