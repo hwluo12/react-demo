@@ -2,20 +2,7 @@ import * as CONSTANTS from "./constants";
 
 const defaultState = {
   inputValue: "",
-  todoLists: [
-    {
-      id: 0,
-      title: "react"
-    },
-    {
-      id: 1,
-      title: "vue"
-    },
-    {
-      id: 2,
-      title: "angular"
-    }
-  ],
+  todoLists: [],
   count: 100
 };
 

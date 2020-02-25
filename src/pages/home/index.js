@@ -6,10 +6,7 @@ import * as ActionCreators from "../../store/actionCreators";
 
 class Home extends React.PureComponent {
   componentDidMount() {
-    fetch("/api/lists.json")
-      .then(response => response.json())
-      .then(res => this.props.getInitData(res.data))
-      .catch(e => console.log("获取数据失败"));
+    this.props.getInitData();
   }
 
   handleChange = e => {
@@ -70,7 +67,9 @@ const mapDispatchToProps = dispatch => ({
     dispatch(ActionCreators.handleItemClickAction(id));
   },
   getInitData(data) {
-    dispatch(ActionCreators.getInitDataAction(data));
+    dispatch({
+      type: "FETCH_REQUESTED"
+    });
   }
 });
 
