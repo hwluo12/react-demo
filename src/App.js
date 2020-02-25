@@ -1,11 +1,17 @@
 import React from "react";
+import { Layout } from "antd";
 import Home from "./pages/home";
+
+const { Header, Content } = Layout;
 
 function App() {
   return (
-    <div style={{ margin: "10px 0 0 10px" }}>
-      <Home />
-    </div>
+    <Layout>
+      <Header style={{ color: "#fff" }}>Header</Header>
+      <Content style={{ padding: "20px 20px" }}>
+        <Home />
+      </Content>
+    </Layout>
   );
 }
 
