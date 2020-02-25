@@ -18,3 +18,15 @@ export const getInitDataAction = data => ({
   type: CONSTANTS.INIT_TODOLISTS,
   payload: data
 });
+
+export const fetchData = () => {
+  return dispatch => {
+    fetch("/api/lists.json")
+      .then(response => response.json())
+      .then(res => {
+        console.log(res);
+        dispatch(getInitDataAction(res.data));
+      })
+      .catch(e => console.log("获取数据失败"));
+  };
+};
