@@ -1,8 +1,9 @@
+// src/pages/home/index.js
 import React from "react";
 import Item from "./components/Item";
 import InputItem from "./components/InputItem";
 
-class Home extends React.PureComponent {
+class Home extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -10,16 +11,39 @@ class Home extends React.PureComponent {
       todoLists: []
     };
     this.counter = 100;
+    console.log("Father constructor");
+  }
+  UNSAFE_componentWillMount() {
+    console.log("Father UNSAFE_componentWillMount");
+  }
+
+  UNSAFE_componentWillReceiveProps() {
+    console.log("Father UNSAFE_componentWillReceiveProps");
+  }
+  shouldComponentUpdate() {
+    console.log("Father shouldComponentUpdate");
+    return true;
+  }
+  UNSAFE_componentWillUpdate() {
+    console.log("Father UNSAFE_componentWillUpdate");
+  }
+  componentDidUpdate() {
+    console.log("Father componentDidUpdate");
+  }
+  componentWillUnmount() {
+    console.log("Father componentWillUnmount");
   }
 
   componentDidMount() {
+    console.log("Father componentDidMount");
     fetch("/api/lists.json")
       .then(response => response.json())
-      .then(res =>
+      .then(res => {
+        console.log("Father fetch");
         this.setState(() => ({
           todoLists: res.data
-        }))
-      )
+        }));
+      })
       .catch(e => console.log("获取数据失败"));
   }
 
@@ -57,6 +81,7 @@ class Home extends React.PureComponent {
   };
 
   render() {
+    console.log("Father render");
     const { inputValue, todoLists } = this.state;
     const styles = {
       paddingLeft: 0,
