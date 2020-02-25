@@ -1,10 +1,20 @@
 import React from "react";
+import { Input, Button } from "antd";
 
 export default ({ inputValue, handleSubmit, handleChange }) => {
   return (
     <div>
-      <input value={inputValue} onChange={handleChange} />
-      <button onClick={handleSubmit}>提交</button>
+      <Input
+        style={{
+          width: 300
+        }}
+        value={inputValue}
+        onChange={handleChange}
+        placeholder="请输入新增list"
+      />
+      <Button onClick={handleSubmit} type="primary">
+        提交
+      </Button>
     </div>
   );
 };

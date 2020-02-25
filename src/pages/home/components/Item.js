@@ -1,5 +1,6 @@
 import React from "react";
+import { Card } from "antd";
 
 export default ({ id, title, handleItemClick }) => {
-  return <li onClick={() => handleItemClick(id)}>{title}</li>;
+  return <Card onClick={() => handleItemClick(id)}>{title}</Card>;
 };

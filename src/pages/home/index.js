@@ -58,6 +58,11 @@ class Home extends React.PureComponent {
 
   render() {
     const { inputValue, todoLists } = this.state;
+    const styles = {
+      paddingLeft: 0,
+      width: 300,
+      marginTop: 10
+    };
     return (
       <div>
         <InputItem
@@ -65,7 +70,7 @@ class Home extends React.PureComponent {
           handleSubmit={this.handleSubmit}
           handleChange={e => this.handleChange(e)}
         />
-        <ul>
+        <ul style={styles}>
           {todoLists.map(item => (
             <Item
               key={item.id}

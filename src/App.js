@@ -3,7 +3,7 @@ import Home from "./pages/home";
 
 function App() {
   return (
-    <div>
+    <div style={{ margin: "10px 0 0 10px" }}>
       <Home />
     </div>
   );
