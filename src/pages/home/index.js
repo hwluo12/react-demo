@@ -1,63 +1,30 @@
 import React from "react";
 import Item from "./components/Item";
 import InputItem from "./components/InputItem";
+import { connect } from "react-redux";
 
 class Home extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      inputValue: "",
-      todoLists: []
-    };
-    this.counter = 100;
-  }
-
   componentDidMount() {
     fetch("/api/lists.json")
       .then(response => response.json())
-      .then(res =>
-        this.setState(() => ({
-          todoLists: res.data
-        }))
-      )
+      .then(res => this.props.getInitData(res.data))
       .catch(e => console.log("获取数据失败"));
   }
 
   handleChange = e => {
-    const inputValue = e.target.value;
-    this.setState(prevState => ({
-      inputValue
-    }));
+    this.props.handleChange(e.target.value);
   };
 
   handleSubmit = () => {
-    const inputValue = this.state.inputValue;
-    if (!inputValue.trim()) {
-      return;
-    }
-    const item = {
-      title: inputValue,
-      id: ++this.counter
-    };
-    this.setState(prevState => {
-      let newTodoLists = [...prevState.todoLists, item];
-      return {
-        todoLists: newTodoLists,
-        inputValue: ""
-      };
-    });
+    this.props.handleSubmit();
   };
 
   handleItemClick = id => {
-    this.setState(prevState => {
-      return {
-        todoLists: prevState.todoLists.filter(item => item.id !== id)
-      };
-    });
+    this.props.handleItemClick(id);
   };
 
   render() {
-    const { inputValue, todoLists } = this.state;
+    const { inputValue, todoLists } = this.props;
     const styles = {
       paddingLeft: 0,
       width: 300,
@@ -84,4 +51,37 @@ class Home extends React.PureComponent {
   }
 }
 
-export default Home;
+const mapStateToProps = state => {
+  return {
+    inputValue: state.inputValue,
+    todoLists: state.todoLists
+  };
+};
+
+const mapDispatchToProps = dispatch => ({
+  handleChange(inputValue) {
+    dispatch({
+      type: "CHANGE_INPUT_VALUE",
+      payload: inputValue
+    });
+  },
+  handleSubmit() {
+    dispatch({
+      type: "ADD_TODOLIST"
+    });
+  },
+  handleItemClick(id) {
+    dispatch({
+      type: "DELETE_TODOLIST",
+      payload: id
+    });
+  },
+  getInitData(data) {
+    dispatch({
+      type: "INIT_TODOLISTS",
+      payload: data
+    });
+  }
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
