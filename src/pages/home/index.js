@@ -1,5 +1,6 @@
-// src/pages/home/index.js
 import React from "react";
+import Item from "./components/Item";
+import InputItem from "./components/InputItem";
 
 class Home extends React.PureComponent {
   constructor(props) {
@@ -61,15 +62,18 @@ class Home extends React.PureComponent {
     const { inputValue, todoLists } = this.state;
     return (
       <div>
-        <div>
-          <input value={inputValue} onChange={this.handleChange} />
-          <button onClick={this.handleSubmit}>提交</button>
-        </div>
+        <InputItem
+          inputValue={inputValue}
+          handleSubmit={this.handleSubmit}
+          handleChange={e => this.handleChange(e)}
+        />
         <ul>
           {todoLists.map(item => (
-            <li key={item.id} onClick={() => this.handleItemClick(item.id)}>
-              {item.title}
-            </li>
+            <Item
+              key={item.id}
+              {...item}
+              handleItemClick={this.handleItemClick}
+            />
           ))}
         </ul>
       </div>
