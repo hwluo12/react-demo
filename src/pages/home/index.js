@@ -2,6 +2,7 @@ import React from "react";
 import Item from "./components/Item";
 import InputItem from "./components/InputItem";
 import { connect } from "react-redux";
+import * as ActionCreators from "../../store/actionCreators";
 
 class Home extends React.PureComponent {
   componentDidMount() {
@@ -60,27 +61,16 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
   handleChange(inputValue) {
-    dispatch({
-      type: "CHANGE_INPUT_VALUE",
-      payload: inputValue
-    });
+    dispatch(ActionCreators.handleChangeAction(inputValue));
   },
   handleSubmit() {
-    dispatch({
-      type: "ADD_TODOLIST"
-    });
+    dispatch(ActionCreators.handleSubmitAction());
   },
   handleItemClick(id) {
-    dispatch({
-      type: "DELETE_TODOLIST",
-      payload: id
-    });
+    dispatch(ActionCreators.handleItemClickAction(id));
   },
   getInitData(data) {
-    dispatch({
-      type: "INIT_TODOLISTS",
-      payload: data
-    });
+    dispatch(ActionCreators.getInitDataAction(data));
   }
 });
 

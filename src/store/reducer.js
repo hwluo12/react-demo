@@ -1,3 +1,5 @@
+import * as CONSTANTS from "./constants";
+
 const defaultState = {
   inputValue: "",
   todoLists: [
@@ -19,12 +21,12 @@ const defaultState = {
 
 export default (state = defaultState, action) => {
   switch (action.type) {
-    case "CHANGE_INPUT_VALUE":
+    case CONSTANTS.CHANGE_INPUT_VALUE:
       return {
         ...state,
         inputValue: action.payload
       };
-    case "ADD_TODOLIST":
+    case CONSTANTS.ADD_TODOLIST:
       const newTodoList = {
         id: state.count,
         title: state.inputValue
@@ -34,7 +36,7 @@ export default (state = defaultState, action) => {
         todoLists: state.todoLists.concat(newTodoList),
         count: ++state.count
       };
-    case "DELETE_TODOLIST":
+    case CONSTANTS.DELETE_TODOLIST:
       const newTodoLists = state.todoLists.filter(
         item => item.id !== action.payload
       );
@@ -42,7 +44,7 @@ export default (state = defaultState, action) => {
         ...state,
         todoLists: newTodoLists
       };
-    case "INIT_TODOLISTS":
+    case CONSTANTS.INIT_TODOLISTS:
       return {
         ...state,
         todoLists: action.payload
