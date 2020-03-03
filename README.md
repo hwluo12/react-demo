@@ -20,7 +20,8 @@
 2. 进入项目目录`cd react-demo`
 3. 启动`yarn start`
 4. 分析理解react目录结构，并删除src目录下的无用文件，只保留`App.js`,`index.js`,`serviceWorker.js`
-5. 修改src/index.js代码如下：```
+5. 修改src/index.js代码如下：
+```
 // src/index.js
 import React from "react";
 import ReactDOM from "react-dom";
