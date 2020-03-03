@@ -33,7 +33,8 @@ ReactDOM.render(<App />, document.getElementById("root"));
 serviceWorker.unregister();
 ```
 
-修改src/App.js代码如下所示```
+修改src/App.js代码如下所示
+```
 // src/App.js
 import React from "react";
 
