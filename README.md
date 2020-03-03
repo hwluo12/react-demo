@@ -968,3 +968,727 @@ export default ({ id, title, handleItemClick }) => {
 4. [React.js 小书](http://huziketang.mangojuice.top/books/react/)
 4. [React 官方推荐资源](https://react.docschina.org/community/courses.html)
 4. [React-Router官网](https://reacttraining.com/react-router/web/guides/quick-start)
+
+# react教程(二)
+
+
+
+<a name="b04f10ba"></a>
+### 一、 [Redux](http://cn.redux.js.org/)+[React-Redux](https://react-redux.js.org/introduction/quick-start)
+
+随着 JavaScript 单页应用开发日趋复杂，JavaScript 需要管理比任何时候都要多的 state （状态）。 这些state可能包括服务器响应、缓存数据、本地生成尚未持久化到服务器的数据，也包括 UI 状态，如激活的路由，被选中的标签，是否显示加载动效或者分页器等等。
+
+<a name="6757bb36"></a>
+#### 1. 引入&使用Redux
+
+1. redux安装`yarn add redux`
+2. 创建**store**：在`src/store`目录下新建`src/store/index.js`文件，代码如下：
+
+```
+// src/store/index.js
+import { createStore } from "redux";
+import reducer from "./reducer";
+
+let store = createStore(
+  reducer
+);
+
+export default store;
+```
+
+3. 创建**reducer**：创建`src/store/reducer.js`文件，代码如下
+
+```
+// src/store/reducer.js
+const defaultState = {
+  inputValue: "",
+  todoLists: []
+};
+
+export default (state = defaultState, action) => {
+    return state;
+}
+```
+
+4. 下载安装[redux-devtools-extension](https://github.com/zalmoxisus/redux-devtools-extension)插件，并修改·`src/store/index.js`引入插件
+
+```
+// src/store/index.js
+import { createStore } from "redux";
+import reducer from "./reducer";
+
+let store = createStore(
+  reducer,
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+);
+
+export default store;
+```
+
+5. 安装[React-Redux](https://react-redux.js.org/introduction/quick-start)(支持^react16.8.3) `yarn add react-redux`
+6. `/src/index.js`引入React-Redux
+
+```
+// /src/index.js
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+import * as serviceWorker from "./serviceWorker";
+import "antd/dist/antd.css";
+import { Provider } from "react-redux";
+import store from "./store";
+
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById("root")
+);
+
+serviceWorker.unregister();
+```
+
+7. View实现
+
+```
+// /src/pages/home/index.js
+import React from "react";
+import Item from "./components/Item";
+import InputItem from "./components/InputItem";
+import { connect } from "react-redux";
+
+class Home extends React.PureComponent {
+  componentDidMount() {
+    fetch("/api/lists.json")
+      .then(response => response.json())
+      .then(res => this.props.getInitData(res.data))
+      .catch(e => console.log("获取数据失败"));
+  }
+
+  handleChange = e => {
+    this.props.handleChange(e.target.value);
+  };
+
+  handleSubmit = () => {
+    this.props.handleSubmit();
+  };
+
+  handleItemClick = id => {
+    this.props.handleItemClick(id);
+  };
+
+  render() {
+    const { inputValue, todoLists } = this.props;
+    const styles = {
+      paddingLeft: 0,
+      width: 300,
+      marginTop: 10
+    };
+    return (
+      <div>
+        <InputItem
+          inputValue={inputValue}
+          handleSubmit={this.handleSubmit}
+          handleChange={e => this.handleChange(e)}
+        />
+        <ul style={styles}>
+          {todoLists.map(item => (
+            <Item
+              key={item.id}
+              {...item}
+              handleItemClick={this.handleItemClick}
+            />
+          ))}
+        </ul>
+      </div>
+    );
+  }
+}
+
+const mapStateToProps = state => {
+  return {
+    inputValue: state.inputValue,
+    todoLists: state.todoLists
+  };
+};
+
+const mapDispatchToProps = dispatch => ({
+  handleChange(inputValue) {
+    dispatch({
+      type: "CHANGE_INPUT_VALUE",
+      payload: inputValue
+    });
+  },
+  handleSubmit() {
+    dispatch({
+      type: "ADD_TODOLIST"
+    });
+  },
+  handleItemClick(id) {
+    dispatch({
+      type: "DELETE_TODOLIST",
+      payload: id
+    });
+  },
+  getInitData(data) {
+    dispatch({
+      type: "INIT_TODOLISTS",
+      payload: data
+    });
+  }
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
+```
+
+```
+// src/store/reducer.js
+const defaultState = {
+  inputValue: "",
+  todoLists: [
+    {
+      id: 0,
+      title: "react"
+    },
+    {
+      id: 1,
+      title: "vue"
+    },
+    {
+      id: 2,
+      title: "angular"
+    }
+  ],
+  count: 100
+};
+
+export default (state = defaultState, action) => {
+  switch (action.type) {
+    case "CHANGE_INPUT_VALUE":
+      return {
+        ...state,
+        inputValue: action.payload
+      };
+    case "ADD_TODOLIST":
+      const newTodoList = {
+        id: state.count,
+        title: state.inputValue
+      };
+      return {
+        inputValue: "",
+        todoLists: state.todoLists.concat(newTodoList),
+        count: ++state.count
+      };
+    case "DELETE_TODOLIST":
+      const newTodoLists = state.todoLists.filter(
+        item => item.id !== action.payload
+      );
+      return {
+        ...state,
+        todoLists: newTodoLists
+      };
+    case "INIT_TODOLISTS":
+      return {
+        ...state,
+        todoLists: action.payload
+      };
+    default:
+      return state;
+  }
+};
+```
+
+<a name="aa68bc41"></a>
+#### 2. 优化代码
+
+actionCreators拆分
+
+```
+// src/store/actionCreators.js
+import * as CONSTANTS from "./constants";
+
+export const handleChangeAction = inputValue => ({
+  type: CONSTANTS.CHANGE_INPUT_VALUE,
+  payload: inputValue
+});
+
+export const handleSubmitAction = () => ({
+  type: CONSTANTS.ADD_TODOLIST
+});
+
+export const handleItemClickAction = id => ({
+  type: CONSTANTS.DELETE_TODOLIST,
+  payload: id
+});
+
+export const getInitDataAction = data => ({
+  type: CONSTANTS.INIT_TODOLISTS,
+  payload: data
+});
+```
+
+actionType拆分
+
+```
+// src/store/constants.js
+export const CHANGE_INPUT_VALUE = "CHANGE_INPUT_VALUE";
+export const ADD_TODOLIST = "ADD_TODOLIST";
+export const DELETE_TODOLIST = "DELETE_TODOLIST";
+export const INIT_TODOLISTS = "INIT_TODOLISTS";
+```
+
+reducer修改
+
+```
+src\store\reducer.js
+import * as CONSTANTS from "./constants";
+
+const defaultState = {
+  inputValue: "",
+  todoLists: [
+    {
+      id: 0,
+      title: "react"
+    },
+    {
+      id: 1,
+      title: "vue"
+    },
+    {
+      id: 2,
+      title: "angular"
+    }
+  ],
+  count: 100
+};
+
+export default (state = defaultState, action) => {
+  switch (action.type) {
+    case CONSTANTS.CHANGE_INPUT_VALUE:
+      return {
+        ...state,
+        inputValue: action.payload
+      };
+    case CONSTANTS.ADD_TODOLIST:
+      const newTodoList = {
+        id: state.count,
+        title: state.inputValue
+      };
+      return {
+        inputValue: "",
+        todoLists: state.todoLists.concat(newTodoList),
+        count: ++state.count
+      };
+    case CONSTANTS.DELETE_TODOLIST:
+      const newTodoLists = state.todoLists.filter(
+        item => item.id !== action.payload
+      );
+      return {
+        ...state,
+        todoLists: newTodoLists
+      };
+    case CONSTANTS.INIT_TODOLISTS:
+      return {
+        ...state,
+        todoLists: action.payload
+      };
+    default:
+      return state;
+  }
+};
+```
+
+index.js修改
+
+```
+// src/pages/home/index.js
+import React from "react";
+import Item from "./components/Item";
+import InputItem from "./components/InputItem";
+import { connect } from "react-redux";
+import * as ActionCreators from "../../store/actionCreators";
+
+class Home extends React.PureComponent {
+  componentDidMount() {
+    fetch("/api/lists.json")
+      .then(response => response.json())
+      .then(res => this.props.getInitData(res.data))
+      .catch(e => console.log("获取数据失败"));
+  }
+
+  handleChange = e => {
+    this.props.handleChange(e.target.value);
+  };
+
+  handleSubmit = () => {
+    this.props.handleSubmit();
+  };
+
+  handleItemClick = id => {
+    this.props.handleItemClick(id);
+  };
+
+  render() {
+    const { inputValue, todoLists } = this.props;
+    const styles = {
+      paddingLeft: 0,
+      width: 300,
+      marginTop: 10
+    };
+    return (
+      <div>
+        <InputItem
+          inputValue={inputValue}
+          handleSubmit={this.handleSubmit}
+          handleChange={e => this.handleChange(e)}
+        />
+        <ul style={styles}>
+          {todoLists.map(item => (
+            <Item
+              key={item.id}
+              {...item}
+              handleItemClick={this.handleItemClick}
+            />
+          ))}
+        </ul>
+      </div>
+    );
+  }
+}
+
+const mapStateToProps = state => {
+  return {
+    inputValue: state.inputValue,
+    todoLists: state.todoLists
+  };
+};
+
+const mapDispatchToProps = dispatch => ({
+  handleChange(inputValue) {
+    dispatch(ActionCreators.handleChangeAction(inputValue));
+  },
+  handleSubmit() {
+    dispatch(ActionCreators.handleSubmitAction());
+  },
+  handleItemClick(id) {
+    dispatch(ActionCreators.handleItemClickAction(id));
+  },
+  getInitData(data) {
+    dispatch(ActionCreators.getInitDataAction(data));
+  }
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
+```
+
+<a name="3e4b5d9a"></a>
+### 二、使用[Redux-thunk](https://github.com/reduxjs/redux-thunk)重构
+
+<a name="7cafe569"></a>
+#### 1. 引入&使用
+
+1. 安装 `yarn add redux-thunk`
+2. 引入
+
+```
+// /src/store/index.js
+import { createStore, applyMiddleware, compose } from "redux";
+import thunk from "redux-thunk";
+import reducer from "./reducer";
+
+const composeEnhancers =
+  typeof window === "object" && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+    ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({})
+    : compose;
+
+const enhancer = composeEnhancers(applyMiddleware(thunk));
+
+let store = createStore(reducer, enhancer);
+
+export default store;
+```
+
+3. 使用<br />
+修改`src/store/actionCreators.js`如下：
+
+```
+// /src/store/actionCreators.js
+import * as CONSTANTS from "./constants";
+
+export const handleChangeAction = inputValue => ({
+  type: CONSTANTS.CHANGE_INPUT_VALUE,
+  payload: inputValue
+});
+
+export const handleSubmitAction = () => ({
+  type: CONSTANTS.ADD_TODOLIST
+});
+
+export const handleItemClickAction = id => ({
+  type: CONSTANTS.DELETE_TODOLIST,
+  payload: id
+});
+
+export const getInitDataAction = data => ({
+  type: CONSTANTS.INIT_TODOLISTS,
+  payload: data
+});
+
+export const fetchData = () => {
+  return dispatch => {
+    fetch("/api/lists.json")
+      .then(response => response.json())
+      .then(res => {
+        console.log(res);
+        dispatch(getInitDataAction(res.data));
+      })
+      .catch(e => console.log("获取数据失败"));
+  };
+};
+```
+
+修改`/src/pages/home/index.js`如下：
+
+```
+// /src/pages/home/index.js
+import React from "react";
+import Item from "./components/Item";
+import InputItem from "./components/InputItem";
+import { connect } from "react-redux";
+import * as ActionCreators from "../../store/actionCreators";
+
+class Home extends React.PureComponent {
+  componentDidMount() {
+    this.props.fetchData();
+  }
+
+  handleChange = e => {
+    this.props.handleChange(e.target.value);
+  };
+
+  handleSubmit = () => {
+    this.props.handleSubmit();
+  };
+
+  handleItemClick = id => {
+    this.props.handleItemClick(id);
+  };
+
+  render() {
+    const { inputValue, todoLists } = this.props;
+    const styles = {
+      paddingLeft: 0,
+      width: 300,
+      marginTop: 10
+    };
+    return (
+      <div>
+        <InputItem
+          inputValue={inputValue}
+          handleSubmit={this.handleSubmit}
+          handleChange={e => this.handleChange(e)}
+        />
+        <ul style={styles}>
+          {todoLists.map(item => (
+            <Item
+              key={item.id}
+              {...item}
+              handleItemClick={this.handleItemClick}
+            />
+          ))}
+        </ul>
+      </div>
+    );
+  }
+}
+
+const mapStateToProps = state => {
+  return {
+    inputValue: state.inputValue,
+    todoLists: state.todoLists
+  };
+};
+
+const mapDispatchToProps = dispatch => ({
+  handleChange(inputValue) {
+    dispatch(ActionCreators.handleChangeAction(inputValue));
+  },
+  handleSubmit() {
+    dispatch(ActionCreators.handleSubmitAction());
+  },
+  handleItemClick(id) {
+    dispatch(ActionCreators.handleItemClickAction(id));
+  },
+  getInitData(data) {
+    dispatch(ActionCreators.getInitDataAction(data));
+  },
+  fetchData() {
+    dispatch(ActionCreators.fetchData());
+  }
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
+```
+
+<a name="719016d7"></a>
+#### 2. 中间件介绍
+
+1. 中间件图示<br />
+![](https://zos.alipayobjects.com/rmsportal/cyzvnIrRhJGOiLliwhcZ.png#align=left&display=inline&height=760&originHeight=760&originWidth=900&status=done&style=none&width=900)
+
+<a name="3e80ea60"></a>
+### 三、使用[Redux-saga](https://redux-saga-in-chinese.js.org/)重构
+
+<a name="7cafe569-1"></a>
+#### 1. 引入&使用
+
+1. 安装 `yarn add redux-saga`
+2. 引入
+
+```
+// /src/store/index.js
+import { createStore, applyMiddleware, compose } from "redux";
+import createSagaMiddleware from "redux-saga";
+
+import reducer from "./reducer";
+import mySaga from "./sagas";
+
+const sagaMiddleware = createSagaMiddleware();
+
+const composeEnhancers =
+  typeof window === "object" && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+    ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({})
+    : compose;
+
+const enhancer = composeEnhancers(applyMiddleware(sagaMiddleware));
+
+let store = createStore(reducer, enhancer);
+
+sagaMiddleware.run(mySaga);
+
+export default store;
+```
+
+3. 使用：<br />
+创建`src/store/sagas.js`代码如下
+
+```
+// src/store/sagas.js
+import { getInitDataAction } from "./actionCreators";
+import { put, takeEvery } from "redux-saga/effects";
+
+function* fetchUser(action) {
+  try {
+    const res = yield fetch("/api/lists.json").then(response =>
+      response.json()
+    );
+    yield put(getInitDataAction(res.data));
+  } catch (e) {
+    console.log("请求失败", e);
+  }
+}
+
+function* mySaga() {
+  yield takeEvery("FETCH_REQUESTED", fetchUser);
+}
+
+export default mySaga;
+```
+
+修改`/src/pages/home/index.js`如下：
+
+```
+// /src/pages/home/index.js
+import React from "react";
+import Item from "./components/Item";
+import InputItem from "./components/InputItem";
+import { connect } from "react-redux";
+import * as ActionCreators from "../../store/actionCreators";
+
+class Home extends React.PureComponent {
+  componentDidMount() {
+    this.props.getInitData();
+  }
+
+  handleChange = e => {
+    this.props.handleChange(e.target.value);
+  };
+
+  handleSubmit = () => {
+    this.props.handleSubmit();
+  };
+
+  handleItemClick = id => {
+    this.props.handleItemClick(id);
+  };
+
+  render() {
+    const { inputValue, todoLists } = this.props;
+    const styles = {
+      paddingLeft: 0,
+      width: 300,
+      marginTop: 10
+    };
+    return (
+      <div>
+        <InputItem
+          inputValue={inputValue}
+          handleSubmit={this.handleSubmit}
+          handleChange={e => this.handleChange(e)}
+        />
+        <ul style={styles}>
+          {todoLists.map(item => (
+            <Item
+              key={item.id}
+              {...item}
+              handleItemClick={this.handleItemClick}
+            />
+          ))}
+        </ul>
+      </div>
+    );
+  }
+}
+
+const mapStateToProps = state => {
+  return {
+    inputValue: state.inputValue,
+    todoLists: state.todoLists
+  };
+};
+
+const mapDispatchToProps = dispatch => ({
+  handleChange(inputValue) {
+    dispatch(ActionCreators.handleChangeAction(inputValue));
+  },
+  handleSubmit() {
+    dispatch(ActionCreators.handleSubmitAction());
+  },
+  handleItemClick(id) {
+    dispatch(ActionCreators.handleItemClickAction(id));
+  },
+  getInitData(data) {
+    dispatch({
+      type: "FETCH_REQUESTED"
+    });
+  }
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
+```
+
+<a name="2b3e18d4"></a>
+### 四、附录
+
+<a name="97af50c5"></a>
+#### 1. 代码
+
+1. 在线查看：[Redux+React-Redux最终代码](https://github.com/hwluo12/react-demo/commits/redux) [使用Redux-thunk重构最终代码](https://github.com/hwluo12/react-demo/commits/redux-thunk) [使用Redux-saga重构最终代码](https://github.com/hwluo12/react-demo/commits/redux-saga)
+2. zip查看：[react-demo.zip](https://www.yuque.com/attachments/yuque/0/2020/zip/448638/1582682547439-41c8a685-5ca9-4efd-82cc-e00b7f611858.zip?_lake_card=%7B%22uid%22%3A%221582682546009-0%22%2C%22src%22%3A%22https%3A%2F%2Fwww.yuque.com%2Fattachments%2Fyuque%2F0%2F2020%2Fzip%2F448638%2F1582682547439-41c8a685-5ca9-4efd-82cc-e00b7f611858.zip%22%2C%22name%22%3A%22react-demo.zip%22%2C%22size%22%3A1580604%2C%22type%22%3A%22application%2Fzip%22%2C%22ext%22%3A%22zip%22%2C%22progress%22%3A%7B%22percent%22%3A99%7D%2C%22status%22%3A%22done%22%2C%22percent%22%3A0%2C%22id%22%3A%22Qutkc%22%2C%22card%22%3A%22file%22%7D)【注：使用git管理代码，其中master分支为教程一最终代码， redux分支为React+React-Redux最终代码，redux-thunk分支为使用Redux-thunk重构后的最终代码， redux-saga为使用Redux-saga重构后的最终代码】
+
+<a name="8ae51112"></a>
+#### 2. 学习资源
+
+1. Redux,React-Reudx,Redux-thunk,Redux-saga官网
+2. [技术胖Redux免费视频教程（共24集）](https://jspang.com/detailed?id=48)
+
